@@ -1,0 +1,81 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="limiter" id="content">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <div class="login100-pic js-tilt" data-tilt>
+                <img src="~/images/logo_intec.png" width="2000px" alt="IMG">
+            </div>
+
+            <form class="login100-form validate-form">
+                <span class="login100-form-title">
+                    Login
+                </span>
+
+                <div class="wrap-input100 validate-input" data-validate="Valid ID is required">
+                    <input v-model="id" class="input100" type="text" name="email" placeholder="ID">
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                    </span>
+                </div>
+
+                <div class="wrap-input100 validate-input" data-validate="Password is required">
+                    <input v-model="password" class="input100" type="password" name="pass" placeholder="Password">
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+                        <i class="fa fa-lock" aria-hidden="true"></i>
+                    </span>
+                </div>
+
+                <span class="text-danger" v-if="nf">
+                    User not found
+                </span>
+
+                <div class="container-login100-form-btn">
+                    <div v-on:click="checkLogin()" class="btn btn-danger rounded-pill">
+                        Login
+                    </div>
+                </div>
+
+                <div v-on:click="register()" class="text-center p-t-136">
+                    <a class="txt2" href="#">
+                        Register
+                        <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        var main = new Vue({
+            el: '#content',
+            data: {
+                id: '',
+                password: '',
+                nf: false,
+            },
+            methods: {
+                checkLogin: function () {
+                    var _this = this;
+                    $.post("/checkLogin", { user_id: this.id, password: this.password }, function (result) {
+                        if (result == 'not found') {
+                            _this.nf = true;
+                        } else {
+                            window.location = '/Home/' + result + '/' + _this.id;
+                        }
+                    });
+                },
+                register: function(){
+                    window.location = '/Register'
+                },
+            }
+        });
+    </script>
+}

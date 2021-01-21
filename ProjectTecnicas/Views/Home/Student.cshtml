@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="content">
+    <div class="container-login100">
+        <div class="wrap-login100" style="padding: 0;">
+            <div class="container" style="padding: 100px; z-index: 2;">
+                <table style="width: 60%">
+                    <tr class="table-header">
+                        <th class=" ">Credito</th>
+                        <th class=" ">Asignatura</th>
+                        <th class=" ">Calificacion</th>
+                    </tr>
+                    <tr v-for="class_o in classes" class="table-row">
+                        <td><div class=" " data-label="Credito">{{ class_o.credit }}</div></td>
+                        <td><div class=" " data-label="Asignatura">{{ class_o.class_name }}</div></td>
+                        <td><div class=" " data-label="Calificacion">{{ class_o.grade }}</div></td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="indice row text-right">
+                <div style="width: 100%">
+                    <h1 class="text-danger">{{ gpa }}</h1></br>
+                    <h4 class="text-danger">INDICE TRIMESTRAL</h4></br>
+                    <h2>{{ honor }}</h2>
+                </div>
+            </div>
+
+            <div class="person text-right" style="z-index: 3">
+                <i class="fa fa-user" style="margin-right: 10px;"></i><span>Welcome {{ student.name }}</span></br>
+                <a class="txt2" v-on:click="exit()" href="#">
+                    Exit
+                    <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <img style="height: 66px; position: absolute; margin: 20px;" src="~/images/logo_intec.png">
+        </div>
+    </div>
+
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        var student = @Html.Raw(Json.Serialize(ViewBag.student));
+        var classes = @Html.Raw(Json.Serialize(ViewBag.classes));
+
+        var main = new Vue({
+            el: '#content',
+            data: {
+                classes: classes,
+                student: student,
+            },
+            computed: {
+                gpa: function () {
+                    var sum = 0, credits = 0;
+                    classes.forEach(function (c) {
+                        switch (c.grade) {
+                            case 'A':
+                                sum += 4 * c.credit;
+                                break;
+                            case 'B+':
+                                sum += 3.5 * c.credit;
+                                break;
+                            case 'B':
+                                sum += 3 * c.credit;
+                                break;
+                            case 'C+':
+                                sum += 2.5 * c.credit;
+                                break;
+                            case 'C':
+                                sum += 2 * c.credit;
+                                break;
+                            case 'D':
+                                sum += 1 * c.credit;
+                                break;
+                        }
+                        credits += Number(c.credit);
+                    })
+
+                    return (sum / credits).toFixed(2);
+                },
+                honor: function () {
+                    if (this.gpa > 3.8) {
+                        return 'Suma Cum Laude'
+                    } else if (this.gpa > 3.5) {
+                        return 'Magna Cum Laude'
+                    } else if (this.gpa > 3.2) {
+                        return 'Cum Laude'
+                    } else {
+                        return 'Sin Honor' 
+                    }
+                }
+
+            },
+            methods: {
+                exit: function () {
+                    window.location = '/';
+                }
+            }
+        });
+    </script>
+}
+

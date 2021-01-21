@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="limiter" id="content">
+    <div class="container-login100">
+        <div class="wrap-login100" style="padding: 0;">
+            <div class="container" style="padding: 100px;">
+                <table style="width: 60%">
+                    <tr class="table-header">
+                        <th class=" ">Credito</th>
+                        <th class=" ">Asignatura</th>
+                    </tr>
+                    <tr v-for="class_o in classes" class="table-row">
+                        <td><div class=" " data-label="Credito">{{ class_o.credit }}</div></td>
+                        <td><div class=" " data-label="Asignatura">{{ class_o.name }}</div></td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="indice row text-right">
+                <div style=" width: 100%; margin-top: 110px; margin-right: 50px;">
+                    <button v-on:click="openGrade" class="btn btn-danger">Calificaciones</button>
+                </div>
+            </div>
+
+            <div class="person text-right">
+                <i class="fa fa-user" style="margin-right: 10px;"></i><span>Welcome {{ professor.name }}</span></br>
+                <a class="txt2" v-on:click="exit()" href="#">
+                    Exit
+                    <i class="fa fa-long-arrow-right m-l-5" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <img style="height: 66px; position: absolute; margin: 20px;" src="~/images/logo_intec.png">
+        </div>
+    </div>
+
+    <div class="modal modal-sticky" id="grade" role="dialog" style="background-color: #0000007d;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>CALIFICACIONES</h5>
+                    <button data-dismiss="modal"><i class="fa fa-close"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="justify-content-center row text-center" style="margin: 30px;">
+                        <div class="col-6 form-group">
+                            <label>Asignatura</label>
+                            <select class="form-control" v-model="selectedClass">
+                                <option v-for="class_o in classes" :value="class_o.id">{{ class_o.name }}</option>
+                            </select>
+                        </div>
+                        <div class="col-6 form-group">
+                            <button v-bind:class="{ disabled : selectedClass == '' }" class="btn btn-primary" v-on:click="searchStudents()">Search</button>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <table style="width: 100%">
+                            <tr class="table-header">
+                                <th class=" ">ID</th>
+                                <th class=" ">Nombre</th>
+                                <th>Grade</th>
+                            </tr>
+                            <tr v-for="student in students" class="table-row">
+                                <td><div class=" " data-label="ID">{{ student.un_id }}</div></td>
+                                <td><div class=" " data-label="Nombre">{{ student.name }}</div></td>
+                                <td><input class="form-control" v-model="student.grade" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" v-on:click="grade()">Grade</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        var professor = @Html.Raw(Json.Serialize(ViewBag.teacher));
+        var classes = @Html.Raw(Json.Serialize(ViewBag.t_classes));
+
+        var main = new Vue({
+            el: '#content',
+            data: {
+                classes: classes,
+                professor: professor,
+                students: [],
+                selectedClass: ''
+            },
+            methods: {
+                openGrade: function () {
+                    $('#grade').modal('show');
+                },
+                searchStudents: function (id) {
+                    var _this = this;
+                    $.post("/searchStudentsGrade", { id: this.selectedClass }, function (result) {
+                        _this.students = result;
+                    })
+                },
+                grade: function () {
+                    var _this = this;
+                    this.students.forEach(function (student) {
+                        $.post("/gradeStudent", { class_id: _this.selectedClass, user_id: student.id, grade: student.grade }, function (result) {
+                        })
+                    });
+                    toastr.success('Students graded', 'Success');
+                    $('#grade').modal('hide');
+                },
+                exit: function () {
+                    window.location = '/';
+                }
+            }
+        });
+    </script>
+}
+
